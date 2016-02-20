@@ -43,7 +43,7 @@ public class Entity : MonoBehaviour {
     {
         character_controller = GetComponent<CharacterController>();
         force_controller = new ForceController(character_controller);
-        action_controller = new ActionController();
+        action_controller = gameObject.AddComponent<ActionController>();
 
         default_forces = new ForceProps[]{
             new ForceProps("Walk", speed, 0.2f, 0.2f)
