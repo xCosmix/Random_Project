@@ -4,10 +4,17 @@ using System.Collections.Generic;
 
 public class ActionController : MonoBehaviour {
 
+    #region Definition
+
     private List<Action> active_actions = new List<Action>();
+    private List<int> actions_to_remove = new List<int>();
+
+    #endregion
+
+    #region Subscribe
 
     /// <summary>
-    /// suscribe to the events of action controller
+    /// subscribe to the events of action controller
     /// </summary>
     /// <param name="instance"></param>
     /// <returns>
@@ -21,18 +28,69 @@ public class ActionController : MonoBehaviour {
         active_actions.Add(instance);
         return true;
     }
+
+    #endregion
+
+    #region Steps
+
+    /// <summary>
+    /// Main Update
+    /// </summary>
     void Update ()
     {
+        StartStep();
+        ActiveActionsStep();
+        EndedActionsStep();
+    }
+
+    /// <summary>
+    /// Start Step at every Update
+    /// </summary>
+    private void StartStep ()
+    {
+        actions_to_remove.Clear();
+    }
+
+    /// <summary>
+    /// Refresh active actions calls at every Update
+    /// </summary>
+    private void ActiveActionsStep ()
+    {
+        int index = 0;
+
         foreach (Action action in active_actions)
         {
+            ActionInstance.State last_state = action.components.action_instance.state;
+
             action.components.action_instance.CallStep();
             action.components.action_instance.UpdateState();
+
+            ///Check if the action already ended (reached goal or failed) and remove it from curren actions updating
+            if (last_state == ActionInstance.State.Failed || last_state == ActionInstance.State.Succeed)
+            {
+                actions_to_remove.Add(index);
+            }
+
+            index++;
         }
     }
+
+    /// <summary>
+    /// Remove ended actions from active_actions list
+    /// </summary>
+    private void EndedActionsStep ()
+    {
+        foreach (int i in actions_to_remove) active_actions.RemoveAt(i);
+    }
+
+    #endregion
+
+    #region StateControl
+
     public ActionInstance.State UpdateState(Action instance)
     {
-        ActionInstance.State last_state = instance.components.action_instance.state;
-
+       
+        
         List<Action> layer_actions = new List<Action>();
         GetActionsInLayer(instance.components.action_properties.layer, ref layer_actions);
 
@@ -72,6 +130,8 @@ public class ActionController : MonoBehaviour {
         if (instance.components.action_instance.state != ActionInstance.State.Queued) return ActionInstance.State.Suspended;
         return instance.components.action_instance.state;
     }
+
+    #endregion
 
     #region Utils
 
