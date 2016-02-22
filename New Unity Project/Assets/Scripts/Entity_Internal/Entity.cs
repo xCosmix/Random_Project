@@ -12,12 +12,15 @@ public class Entity : MonoBehaviour {
 
     #endregion
 
+    #region EntityProps
+
+    public Stats stats;
+
+    #endregion
+
     #region CharacterController
 
-    public float speed;
-    public float rotation_speed;
-    public float weight;
-    public ForceProps[] forces;
+    public CCProperties characterController;
     protected ForceProps[] default_forces;
     
     protected void LookAtWalkForce ()
@@ -27,7 +30,7 @@ public class Entity : MonoBehaviour {
         if (current_direction == Vector3.zero) return;
 
         Quaternion look_rotation = Quaternion.LookRotation(current_direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, look_rotation, Time.deltaTime * rotation_speed);
+        transform.rotation = Quaternion.Slerp(transform.rotation, look_rotation, Time.deltaTime * characterController.rotation_speed);
     }
 
     #endregion
@@ -46,7 +49,7 @@ public class Entity : MonoBehaviour {
         action_controller = gameObject.AddComponent<ActionController>();
 
         default_forces = new ForceProps[]{
-            new ForceProps("Walk", speed, 0.2f, 0.2f)
+            new ForceProps("Walk", characterController.speed, 0.2f, 0.2f)
         };
 
         CustomStart();
@@ -90,3 +93,26 @@ public class Entity : MonoBehaviour {
 
     #endregion
 }
+
+#region Structs
+
+    /// <summary>
+    /// the stats of the entity
+    /// </summary>
+    [System.Serializable]
+    public struct Stats
+    {
+        public int life;
+        public int level;
+    }
+
+    [System.Serializable]
+    public struct CCProperties
+    {
+        public float speed;
+        public float rotation_speed;
+        public float weight;
+        public ForceProps[] forces;
+    }
+
+#endregion

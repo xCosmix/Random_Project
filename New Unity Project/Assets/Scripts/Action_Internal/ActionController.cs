@@ -90,14 +90,16 @@ public class ActionController : MonoBehaviour {
     public ActionInstance.State UpdateState(Action instance)
     {
        
-        
         List<Action> layer_actions = new List<Action>();
         GetActionsInLayer(instance.components.action_properties.layer, ref layer_actions);
 
-        foreach(Action action in layer_actions)
+        if (instance.components.action_properties.priority > 0)
         {
-            if (action.components.action_properties.priority > instance.components.action_properties.priority)
-                return SuspendState(instance);
+            foreach (Action action in layer_actions)
+            {
+                if (action.components.action_properties.priority > instance.components.action_properties.priority)
+                    return SuspendState(instance);
+            }
         }
 
         return NextState(instance);
