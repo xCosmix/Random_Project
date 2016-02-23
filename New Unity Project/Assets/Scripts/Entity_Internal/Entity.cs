@@ -52,6 +52,8 @@ public class Entity : MonoBehaviour {
             new ForceProps("Walk", characterController.speed, 0.2f, 0.2f)
         };
 
+        NavigationController.Get().Subscribe(this.transform);
+
         CustomStart();
     }
 

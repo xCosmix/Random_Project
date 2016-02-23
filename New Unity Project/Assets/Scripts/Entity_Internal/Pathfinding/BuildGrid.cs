@@ -6,6 +6,7 @@ public class BuildGrid : MonoBehaviour {
     #region Definition
 
     public float node_size = 2.0f;
+    public bool destroy_after = false;
 
     protected GameObject target;
     protected Mesh target_mesh;
@@ -59,11 +60,17 @@ public class BuildGrid : MonoBehaviour {
                 node_position.x += node_size * x;
                 node_position.z += node_size * y;
 
-                nodes[x, y] = new NavigationGrid.Node(id, node_position);
+                NavigationGrid.Coords coords = new NavigationGrid.Coords(x, y);
+
+                nodes[x, y] = new NavigationGrid.Node(id, coords, node_position);
             }
         }
 
         new NavigationGrid(nodes);
+        NavigationController.Get();
+
+        if (destroy_after) Destroy(this.gameObject);
+        else Destroy(this);
     }
 
     #endregion
