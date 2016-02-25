@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Node {
+public class Node : IHeapItem<Node> {
 
     public readonly bool walkable;
     public readonly Vector3 position;
@@ -20,6 +20,30 @@ public class Node {
         }
     }
     public Node parent;
+    public bool closed;
+    int heapIndex;
+
+    public int HeapIndex
+    {
+        get
+        {
+            return heapIndex;
+        }
+        set
+        {
+            heapIndex = value;
+        }
+    }
+
+    public int CompareTo(Node a)
+    {
+        int compare = fCost.CompareTo(a.fCost);
+        if (compare == 0)
+        {
+            compare = hCost.CompareTo(a.hCost);
+        }
+        return -compare;
+    }
 
     #endregion
 
@@ -51,7 +75,7 @@ public class Node {
             }
         }
 
-        Coords[] output = new Coords[count + 1];
+        Coords[] output = new Coords[count];
         for (int i = 0; i < count; i++)
         {
             output[i] = nb_holder[i];

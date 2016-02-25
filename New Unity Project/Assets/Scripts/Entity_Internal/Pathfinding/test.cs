@@ -8,13 +8,13 @@ public class test : MonoBehaviour {
     public Transform b;
 	// Use this for initialization
 	void Start () {
-	
-	}
+        
+    }
 	
 	// Update is called once per frame
 	void Update () {
         path = Pathfinding.FindPath(a.position, b.position);
-	}
+    }
 
     void OnDrawGizmos ()
     {

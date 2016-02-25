@@ -32,6 +32,18 @@ public static class Grid {
     {
         return grid;
     }
+    public static Coords GetSize ()
+    {
+        return gridSize;
+    }
+    public static int GetMaxSize ()
+    {
+        return gridSize.x * gridSize.y;
+    }
+    public static float GetNodeSize ()
+    {
+        return nodeSize;
+    }
     public static Node GetClosestNode (Vector3 point)
     {
         Vector3 startPoint = grid[0, 0].position;

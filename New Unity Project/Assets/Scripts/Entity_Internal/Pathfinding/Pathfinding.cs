@@ -7,12 +7,12 @@ public static class Pathfinding {
     public static Vector3[] FindPath (Vector3 from, Vector3 target)
     {
         #region Defintion
-
         Node startNode = Grid.GetClosestNode(from);
         Node targetNode = Grid.GetClosestNode(target);
 
-        List<Node> openSet = new List<Node>();
+        Heap<Node> openSet = new Heap<Node>(Grid.GetMaxSize());
         HashSet<Node> closedSet = new HashSet<Node>();
+        Node currentNode;
 
         #endregion
 
@@ -28,20 +28,7 @@ public static class Pathfinding {
         {
             #region Find lowest cost node
 
-            Node currentNode = openSet[0];
-            for (int i = 1; i > openSet.Count; i++)
-            {
-                if (openSet[i].fCost < currentNode.fCost || openSet[i].fCost == currentNode.fCost && openSet[i].hCost < currentNode.hCost)
-                {
-                    currentNode = openSet[i]; 
-                }
-            }
-
-            #endregion
-
-            #region Tweak sets
-
-            openSet.Remove(currentNode);
+            currentNode = openSet.RemoveFirst();
             closedSet.Add(currentNode);
 
             #endregion
@@ -61,9 +48,11 @@ public static class Pathfinding {
             {
                 Node nb_node = Grid.GetNode(neighbour);
                 bool openSetContains = openSet.Contains(nb_node);
+                
                 if (!nb_node.walkable || closedSet.Contains(nb_node)) continue;
 
                 int distance2Neighbour = currentNode.gCost + Grid.GetDistance(currentNode, nb_node);
+
                 if (distance2Neighbour < nb_node.gCost || !openSetContains)
                 {
                     nb_node.gCost = distance2Neighbour;
@@ -71,7 +60,13 @@ public static class Pathfinding {
                     nb_node.parent = currentNode;
 
                     if (!openSetContains)
+                    {
                         openSet.Add(nb_node);
+                    }
+                    else
+                    {
+                        openSet.UpdateItem(nb_node);
+                    }
                 }
             }
 
