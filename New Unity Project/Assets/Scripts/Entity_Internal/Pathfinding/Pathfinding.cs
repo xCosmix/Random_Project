@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 public static class Pathfinding {
@@ -7,12 +7,17 @@ public static class Pathfinding {
     public static Vector3[] FindPath (Vector3 from, Vector3 target)
     {
         #region Defintion
+
         Node startNode = Grid.GetClosestNode(from);
         Node targetNode = Grid.GetClosestNode(target);
 
         Heap<Node> openSet = new Heap<Node>(Grid.GetMaxSize());
-        HashSet<Node> closedSet = new HashSet<Node>();
         Node currentNode;
+
+        foreach (Node n in Grid.GetGrid())
+        {
+            n.values.Reset();
+        }
 
         #endregion
 
@@ -29,7 +34,7 @@ public static class Pathfinding {
             #region Find lowest cost node
 
             currentNode = openSet.RemoveFirst();
-            closedSet.Add(currentNode);
+            currentNode.values.closed = true;
 
             #endregion
 
@@ -49,15 +54,15 @@ public static class Pathfinding {
                 Node nb_node = Grid.GetNode(neighbour);
                 bool openSetContains = openSet.Contains(nb_node);
                 
-                if (!nb_node.walkable || closedSet.Contains(nb_node)) continue;
+                if (!nb_node.walkable || nb_node.values.closed) continue;
 
-                int distance2Neighbour = currentNode.gCost + Grid.GetDistance(currentNode, nb_node);
+                int distance2Neighbour = currentNode.values.gCost + Grid.GetDistance(currentNode, nb_node);
 
-                if (distance2Neighbour < nb_node.gCost || !openSetContains)
+                if (distance2Neighbour < nb_node.values.gCost || !openSetContains)
                 {
-                    nb_node.gCost = distance2Neighbour;
-                    nb_node.hCost = Grid.GetDistance(nb_node, targetNode);
-                    nb_node.parent = currentNode;
+                    nb_node.values.gCost = distance2Neighbour;
+                    nb_node.values.hCost = Grid.GetDistance(nb_node, targetNode);
+                    nb_node.values.Parent = currentNode;
 
                     if (!openSetContains)
                     {
@@ -99,7 +104,7 @@ public static class Pathfinding {
         while (currentNode != startNode)
         {
             path.Add(currentNode);
-            currentNode = currentNode.parent;
+            currentNode = currentNode.values.Parent;
         }
 
         Vector3[] output = new Vector3[path.Count];

@@ -1,17 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
+public class NodeValue : IHeapItem<NodeValue>
+{
+    private Coords parent;
+    public Node Parent
+    {
+        get { return Grid.GetNode(parent); }
+        set { parent = value.gridPos; }
+    }
 
-public class Node : IHeapItem<Node> {
+    public bool closed = false;
 
-    public readonly bool walkable;
-    public readonly Vector3 position;
-    public readonly Coords gridPos;
-    public readonly Coords[] neighbours;
-
-    #region Pathfinding
-
-    public int gCost;
-    public int hCost;
+    public int gCost = 0;
+    public int hCost = 0;
     public int fCost
     {
         get
@@ -19,23 +20,15 @@ public class Node : IHeapItem<Node> {
             return gCost + hCost;
         }
     }
-    public Node parent;
-    public bool closed;
-    int heapIndex;
-
+  
+    private int heapIndex = 0;
     public int HeapIndex
     {
-        get
-        {
-            return heapIndex;
-        }
-        set
-        {
-            heapIndex = value;
-        }
+        get { return heapIndex; }
+        set { heapIndex = value; }
     }
 
-    public int CompareTo(Node a)
+    public int CompareTo(NodeValue a)
     {
         int compare = fCost.CompareTo(a.fCost);
         if (compare == 0)
@@ -45,7 +38,22 @@ public class Node : IHeapItem<Node> {
         return -compare;
     }
 
-    #endregion
+    public void Reset ()
+    {
+        gCost = 0;
+        hCost = 0;
+        closed = false;
+        heapIndex = 0;
+    }
+}
+public class Node { 
+
+    public readonly bool walkable;
+    public readonly Vector3 position;
+    public readonly Coords gridPos;
+    public readonly Coords[] neighbours;
+
+    public NodeValue values;
 
     public Node (bool walkable, Vector3 position, int gridX, int gridY)
     {
@@ -53,6 +61,8 @@ public class Node : IHeapItem<Node> {
         this.position = position;
         this.gridPos = new Coords(gridX, gridY);
         this.neighbours = GetNeighbours();
+
+        this.values = new NodeValue();
     }
 
     private Coords[] GetNeighbours ()

@@ -1,36 +1,50 @@
 ﻿using UnityEngine;
+using System.Diagnostics;
 using System.Collections;
 
 public class test : MonoBehaviour {
-
-    Vector3[] path;
-    public Transform a;
+    public static double averageTime;
+    public static int iterations;
+    public Transform[] a;
+     Vector3[][] paths;
     public Transform b;
 	// Use this for initialization
 	void Start () {
-        
+        paths = new Vector3[a.Length][];
     }
 	
 	// Update is called once per frame
 	void Update () {
-        path = Pathfinding.FindPath(a.position, b.position);
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+        for (int i = 0; i < a.Length; i++)
+        {
+            paths[i] = Pathfinding.FindPath(a[i].position, b.position);
+        }
+        //debug
+        sw.Stop();
+        averageTime += sw.Elapsed.TotalMilliseconds;
+        iterations++;
+        UnityEngine.Debug.Log(averageTime / (double)iterations);
+        //end debug
     }
 
     void OnDrawGizmos ()
     {
-        if (path == null) return;
-        for (int i = 1; i < path.Length; i++)
+        if (paths == null) return;
+        foreach (Vector3[] path in paths)
         {
-            Gizmos.color = Color.black;
-            Gizmos.DrawLine(path[i-1], path[i]);
+            for (int i = 1; i < path.Length; i++)
+            {
+                Gizmos.color = Color.black;
+                Gizmos.DrawLine(path[i - 1], path[i]);
+            }
         }
         if (Grid.GetGrid() != null)
         {
-            Node playerNode = Grid.GetClosestNode(a.transform.position);
             foreach (Node n in Grid.GetGrid())
             {
                 Gizmos.color = (n.walkable) ? Color.black : Color.red;
-                if (n == playerNode) Gizmos.color = Color.cyan;
                 Gizmos.DrawCube(n.position, Vector3.one*0.2f);
             }
         }
