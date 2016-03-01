@@ -10,15 +10,15 @@ public class testBT : MonoBehaviour {
     // Use this for initialization
     void Start() {
         blackBoard = new Blackboard(this.gameObject);
-        BehaviourTree.Node root = new Priority(
-            new BehaviourTree.Node[]
+        Node root = new Priority(
+            new Node[]
             {
                 new Sequence(
-                    new BehaviourTree.Node[]
+                    new Node[]
                     {
                         new ButtonPressed("X"),
                         new MemSequence(
-                            new BehaviourTree.Node[]
+                            new Node[]
                             {
                                 new ChangeColor(Color.blue),
                                 new Wait(1.0f),

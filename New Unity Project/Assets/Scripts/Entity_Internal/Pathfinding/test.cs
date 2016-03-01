@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Diagnostics;
-using System.Collections;
+using Pathfinding;
 
 public class test : MonoBehaviour {
     public static double averageTime;
@@ -19,7 +19,7 @@ public class test : MonoBehaviour {
         sw.Start();
         for (int i = 0; i < a.Length; i++)
         {
-            paths[i] = Pathfinding.FindPath(a[i].position, b.position);
+            paths[i] = Path.FindPath(a[i].position, b.position);
         }
         //debug
         sw.Stop();

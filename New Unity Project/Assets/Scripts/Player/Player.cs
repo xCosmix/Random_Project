@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using Forces;
 
 public partial class Player : Entity {
 

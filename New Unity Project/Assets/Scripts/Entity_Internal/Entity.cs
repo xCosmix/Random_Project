@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Forces;
 
 [RequireComponent(typeof(CharacterController))]
 public class Entity : MonoBehaviour {
