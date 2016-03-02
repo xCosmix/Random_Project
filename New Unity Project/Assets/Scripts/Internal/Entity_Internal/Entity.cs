@@ -11,6 +11,11 @@ public class Entity : MonoBehaviour {
     protected ForceController force_controller;
     protected ActionController action_controller;
 
+    public ForceController forceController ()
+    {
+        return force_controller;
+    }
+
     #endregion
 
     #region EntityProps

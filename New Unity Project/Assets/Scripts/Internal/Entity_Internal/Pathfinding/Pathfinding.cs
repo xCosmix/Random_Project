@@ -109,9 +109,9 @@ namespace Pathfinding
             }
 
             Vector3[] output = new Vector3[path.Count];
-            for (int i = path.Count - 1; i >= 0; i--)
+            for (int i = 0; i < path.Count; i++)
             {
-                output[i] = path[i].position;
+                output[i] = path[path.Count - 1 - i].position;
             }
 
             return output;

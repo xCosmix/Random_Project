@@ -79,7 +79,7 @@ public partial class Player : Entity
         }
     }
 
-    [ActionProperties("Move", "Player", 1, false)]
+    [ActionProperties("Move", "Movement", 1, false)]
     class Move : Action
     {
         public override void End() { }

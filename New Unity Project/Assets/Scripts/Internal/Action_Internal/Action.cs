@@ -52,7 +52,7 @@ public sealed class ActionInstance : System.Object
 
     public enum State
     {
-        Queued, Start, Updating, Suspended, Failed, Succeed
+        Queued, Start, Updating, Suspended, Failed, Succeed, Cancel
     }
 
     public Action action;
@@ -81,7 +81,16 @@ public sealed class ActionInstance : System.Object
     public void CallStep()
     {
         Step();
-    }    
+    }
+    public void UpdateState()
+    {
+        state = UpdateStateInternal();
+    }
+    public void Cancel ()
+    {
+        state = State.Cancel;
+    }
+
     private void Step()
     {
         switch (state)
@@ -104,14 +113,15 @@ public sealed class ActionInstance : System.Object
             case State.Succeed:
                 action.components.action_interface.End();
                 break;
+            case State.Cancel:
+                break;
         }
-    }
-    public void UpdateState()
-    {
-        state = UpdateStateInternal();
     }
     private State UpdateStateInternal()
     {
+        ///If an action enters on state cancel, it cannot be changed, the action will be removed at the next update of Action
+        /// Controller at evaluation of state.
+        if (state == State.Cancel) return state;
         return action.components.action_controller.UpdateState(action);
     }
 
@@ -123,19 +133,21 @@ public abstract class Action : ActionInterface
 {
     #region Definition
 
-    public static void Create<T> (GameObject target) where T : Action
+    public static T Create<T> (GameObject target) where T : Action
     {
         ActionController controller = GetController(target);
-        bool alreadyExists = IsCloned<T>(controller);
-        if (alreadyExists)
+        Action alreadyExists = IsCloned<T>(controller);
+        if (alreadyExists != null)
         {
             Debug.Log("this action already exists");
-            return;
+            return (T)alreadyExists;
         }
 
-        T type = Activator.CreateInstance(typeof(T), new object[] {}) as T;
-        type.SetComponents(target);
-        type.Subscribe();
+        T instance = Activator.CreateInstance(typeof(T)) as T;
+        instance.SetComponents(target);
+        instance.Subscribe();
+
+        return instance;
     }
     protected void SetComponents (GameObject target)
     {
@@ -212,7 +224,7 @@ public abstract class Action : ActionInterface
         ActionProperties props = (ActionProperties)Attribute.GetCustomAttribute(typeof(T), typeof(ActionProperties));
         return props;
     }
-    protected static bool IsCloned<T> (ActionController controller) where T : Action
+    protected static Action IsCloned<T> (ActionController controller) where T : Action
     {
         ActionProperties props = GetProperties_Util<T>();
         return controller.IsCloned(props.name, props.layer);

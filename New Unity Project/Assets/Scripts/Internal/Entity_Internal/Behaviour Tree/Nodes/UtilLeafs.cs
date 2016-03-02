@@ -86,4 +86,32 @@ namespace BehaviourTree
             return State.Failure;
         }
     }
+
+    public class XAction <T> : Leaf where T : Action
+    {
+        public override void Open(Tick tick)
+        {
+            Action action = Action.Create<T>(tick.blackBoard.agent);
+            tick.blackBoard.Set("Action", action, tick.tree, this);
+        }
+
+        public override State Tick(Tick tick)
+        {
+            Action action = tick.blackBoard.Get<Action>("Action", tick.tree, this);
+            ActionInstance actionInstance = action.components.action_instance;
+
+            State state = State.Running;
+
+            if (actionInstance.state == ActionInstance.State.Failed) state = State.Failure;
+            if (actionInstance.state == ActionInstance.State.Succeed) state = State.Success;
+
+            return state;
+        }
+
+        public override void Close(Tick tick)
+        {
+            Action action = tick.blackBoard.Get<Action>("Action", tick.tree, this);
+            action.components.action_instance.Cancel();
+        }
+    }
 }

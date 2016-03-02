@@ -66,7 +66,7 @@ public class ActionController : MonoBehaviour {
             action.components.action_instance.UpdateState();
 
             ///Check if the action already ended (reached goal or failed) and remove it from curren actions updating
-            if (last_state == ActionInstance.State.Failed || last_state == ActionInstance.State.Succeed)
+            if (last_state == ActionInstance.State.Failed || last_state == ActionInstance.State.Succeed || last_state == ActionInstance.State.Cancel)
             {
                 actions_to_remove.Add(index);
             }
@@ -147,16 +147,16 @@ public class ActionController : MonoBehaviour {
             }
         }
     }
-    public bool IsCloned (string name, string layer)
+    public Action IsCloned (string name, string layer)
     {
         List<Action> layer_actions = new List<Action>();
         GetActionsInLayer(layer, ref layer_actions);
 
         foreach (Action layer_action in layer_actions)
         {
-            if (layer_action.components.action_properties.name == name) return true;
+            if (layer_action.components.action_properties.name == name) return layer_action;
         }
-        return false;
+        return null;
     }
     #endregion
 }
