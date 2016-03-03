@@ -89,9 +89,15 @@ namespace BehaviourTree
 
     public class XAction <T> : Leaf where T : Action
     {
+        private object[] parameters;
+
+        public XAction(params object[] parameters)
+        {
+            this.parameters = parameters;
+        }
         public override void Open(Tick tick)
         {
-            Action action = Action.Create<T>(tick.blackBoard.agent);
+            Action action = Action.Create<T>(tick.blackBoard.agent, parameters);
             tick.blackBoard.Set("Action", action, tick.tree, this);
         }
 

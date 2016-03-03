@@ -133,7 +133,7 @@ public abstract class Action : ActionInterface
 {
     #region Definition
 
-    public static T Create<T> (GameObject target) where T : Action
+    public static T Create<T> (GameObject target, object[] parameters = null) where T : Action
     {
         ActionController controller = GetController(target);
         Action alreadyExists = IsCloned<T>(controller);
@@ -143,7 +143,7 @@ public abstract class Action : ActionInterface
             return (T)alreadyExists;
         }
 
-        T instance = Activator.CreateInstance(typeof(T)) as T;
+        T instance = Activator.CreateInstance(typeof(T), parameters) as T;
         instance.SetComponents(target);
         instance.Subscribe();
 

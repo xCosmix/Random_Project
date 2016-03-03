@@ -7,11 +7,13 @@ namespace EnemyActions
     [ActionProperties("Random", "Movement", 1, false)]
     class RandomMovement : Action
     {
-        /// <summary>
-        /// SOLVE THIS PARAMETERS SHIT
-        /// </summary>
-        float radius = 5.0f;
-        ForceProps force = new ForceProps("randomTEST", 10.0f, 0.2f, 0.2f);
+        public RandomMovement (float radius, ForceProps force)
+        {
+            this.radius = radius;
+            this.force = force;
+        }
+        float radius;
+        ForceProps force;
 
         Entity me;
         Vector3[] path;
@@ -58,7 +60,6 @@ namespace EnemyActions
                 currentPoint = Mathf.Clamp(currentPoint, 0, path.Length - 1);
                 currentGoal = path[currentPoint];
                 currentGoal.y = myPosition.y;
-                Debug.Log(currentPoint);
             }
 
             //Debug.DrawLine(currentGoal, currentGoal + Vector3.up * 10.0f, Color.red);

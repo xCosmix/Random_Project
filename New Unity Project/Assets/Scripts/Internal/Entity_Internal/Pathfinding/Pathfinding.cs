@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Diagnostics;
 using System.Collections.Generic;
 namespace Pathfinding
 {
@@ -102,12 +101,14 @@ namespace Pathfinding
             List<Node> path = new List<Node>();
             Node currentNode = endNode;
 
+            if (currentNode == startNode) return new Vector3[] { startNode.position };
+
             while (currentNode != startNode)
             {
                 path.Add(currentNode);
                 currentNode = currentNode.values.Parent;
             }
-
+            
             Vector3[] output = new Vector3[path.Count];
             for (int i = 0; i < path.Count; i++)
             {

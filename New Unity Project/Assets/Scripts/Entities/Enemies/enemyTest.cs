@@ -22,7 +22,7 @@ public class enemyTest : Enemy {
                             {
                                 new ChangeColor(Color.blue),
                                 new Wait(1.0f),
-                                new XAction<RandomMovement>()
+                                new XAction<RandomMovement>(5.0f, default_forces[0])
                                // new ChangeColor(Color.red)
                             }
                         )
