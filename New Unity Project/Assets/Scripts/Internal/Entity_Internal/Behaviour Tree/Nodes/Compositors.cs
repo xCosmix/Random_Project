@@ -101,4 +101,43 @@ namespace BehaviourTree
             return State.Failure;
         }
     }
+
+    public class Probabilistic : Compositor
+    {
+        public Probabilistic(Node[] children) : base(children) { }
+
+        public override State Tick(Tick tick)
+        {
+            int i = Random.Range(0, children.Length);
+            State state = children[i].Execute(tick);
+
+            return state;
+        }
+    }
+
+    public class XProbabilistic : Compositor
+    {
+        public XProbabilistic(Node[] children) : base(children) { }
+
+        public override void Open(Tick tick)
+        {
+            tick.blackBoard.Set("runningChild", -1, tick.tree, this);
+        }
+        public override State Tick(Tick tick)
+        {
+            int i;
+            i = tick.blackBoard.Get<int>("runningChild", tick.tree, this);
+
+            if (i == -1)
+            {
+                i = Random.Range(0, children.Length);
+            }
+
+            State state = children[i].Execute(tick);
+
+            if (state == State.Running) tick.blackBoard.Set("runningChild", i, tick.tree, this);
+
+            return state;
+        }
+    }
 }

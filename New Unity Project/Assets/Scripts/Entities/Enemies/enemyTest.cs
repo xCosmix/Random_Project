@@ -11,24 +11,29 @@ public class enemyTest : Enemy {
         (
            new Node[]
            {
-                new Sequence
+                new XProbabilistic
                 (
                     new Node[]
                     {
-                        new ButtonPressed("X"),
                         new MemSequence
                         (
                             new Node[]
                             {
                                 new ChangeColor(Color.blue),
-                                new Wait(1.0f),
+                                new WaitRandom(0.2f, 1.0f),
                                 new XAction<RandomMovement>(5.0f, default_forces[0])
-                               // new ChangeColor(Color.red)
+                            }
+                        ),
+                        new MemSequence 
+                        (
+                            new Node[]
+                            {
+                                new ChangeColor(Color.red),
+                                new WaitRandom(0.7f, 3.0f)
                             }
                         )
                     }
                 ),
-                new ChangeColor(Color.red)
            }
         );
         behaviourTree = new BehaviourTree.Tree(root);

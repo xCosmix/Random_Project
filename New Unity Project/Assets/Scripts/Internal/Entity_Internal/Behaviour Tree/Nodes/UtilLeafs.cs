@@ -29,6 +29,31 @@ namespace BehaviourTree
         }
     }
 
+    public class WaitRandom : Leaf
+    {
+        private float min = 0.0f;
+        private float max = 0.0f;
+
+        public WaitRandom(float min, float max) { this.min = min; this.max = max; }
+
+        public override void Open(Tick tick)
+        {
+            float endTime = Random.Range(min, max);
+            tick.blackBoard.Set("startTime", Time.time, tick.tree, this);
+            tick.blackBoard.Set("endTime", endTime, tick.tree, this);
+        }
+        public override State Tick(Tick tick)
+        {
+            float startTime = tick.blackBoard.Get<float>("startTime", tick.tree, this);
+            float endTime = tick.blackBoard.Get<float>("endTime", tick.tree, this);
+            float currentTime = Time.time - startTime;
+
+            if (currentTime >= endTime) return State.Success;
+
+            return State.Running;
+        }
+    }
+
     public class ChangeColor : Leaf
     {
         private Color color;

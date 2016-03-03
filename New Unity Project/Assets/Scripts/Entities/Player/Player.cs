@@ -7,11 +7,13 @@ public partial class Player : Entity {
 
     protected PlayerCamera player_camera;
     protected PlayerInput player_input;
+    protected Animation player_animation;
     protected static Player player;
 
 	// Use this for initialization
 	protected override void CustomStart () {
         player_camera = PlayerCamera.Get();
+        player_animation = GetComponentInChildren<Animation>();
         player = this;
 
         StartActions();
@@ -21,6 +23,7 @@ public partial class Player : Entity {
         Action.Create<InputController>(this.gameObject);
         Action.Create<CameraController>(this.gameObject);
 
+        Action.Create<Idle>(this.gameObject);
         Action.Create<Move>(this.gameObject);
     }
     // Update is called once per frame
@@ -96,7 +99,24 @@ public partial class Player : Entity
             {
                 Vector3 walk_dir = new Vector3(player.player_input.horizontal_axis, 0.0f, player.player_input.vertical_axis);
                 player.force_controller.AddForce(player.default_forces[0], walk_dir);
+                player.player_animation.CrossFade("Run", 0.2f);
             }
+        }
+    }
+    [ActionProperties("Idle", "Movement", 0, false)]
+    class Idle : Action
+    {
+        public override void End() { }
+        public override void Suspended() { }
+        public override void Queued() { }
+        public override void Start() { }
+
+        public override bool Fail() { return false; }
+        public override bool Goal() { return false; }
+
+        public override void Update()
+        {
+            player.player_animation.CrossFade("Idle", 0.2f);
         }
     }
 }

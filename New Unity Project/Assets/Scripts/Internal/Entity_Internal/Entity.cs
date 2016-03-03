@@ -55,7 +55,7 @@ public class Entity : MonoBehaviour {
         action_controller = gameObject.AddComponent<ActionController>();
 
         default_forces = new ForceProps[]{
-            new ForceProps("Walk", characterController.speed, 0.2f, 0.2f)
+            new ForceProps("Walk", characterController.speed, 0.1f, 0.1f)
         };
 
         CustomStart();
