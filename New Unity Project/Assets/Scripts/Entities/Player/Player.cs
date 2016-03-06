@@ -5,16 +5,40 @@ using Forces;
 
 public partial class Player : Entity {
 
-    protected PlayerCamera player_camera;
-    protected PlayerInput player_input;
-    protected Animation player_animation;
-    protected static Player player;
+    protected static Player internalPlayer;
+    public static Player player
+    {
+        get { return internalPlayer; }
+        set { internalPlayer = value; }
+    }
 
-	// Use this for initialization
-	protected override void CustomStart () {
-        player_camera = PlayerCamera.Get();
-        player_animation = GetComponentInChildren<Animation>();
+    protected PlayerCamera playerCamera;
+    protected PlayerInput playerInput;
+    
+    protected Vector2 lastAimDir = Vector2.up;
+    public override Vector2 AimDir
+    {
+        get
+        {
+            if (Mathf.Abs(playerInput.rightHorizontalAxis) > 0.5 || Mathf.Abs(playerInput.rightVerticalAxis) > 0.5)
+            {
+                lastAimDir = new Vector2(playerInput.rightHorizontalAxis, playerInput.rightVerticalAxis);
+            }
+            return lastAimDir;
+        }
+        set { return; }
+    }
+
+    private Weapon cannon;
+    private Weapon blade;
+
+    // Use this for initialization
+    protected override void CustomStart () {
+        playerCamera = PlayerCamera.Get();
         player = this;
+
+        cannon = new NormalCannon(this);
+        blade = new NormalBlade(this);
 
         StartActions();
 	}
@@ -23,19 +47,22 @@ public partial class Player : Entity {
         Action.Create<InputController>(this.gameObject);
         Action.Create<CameraController>(this.gameObject);
 
+        Action.Create<Cannon>(this.gameObject);
         Action.Create<Idle>(this.gameObject);
         Action.Create<Move>(this.gameObject);
     }
     // Update is called once per frame
-    protected override void CustomUpdate() {    }
+    protected override void CustomUpdate() {  }
 }
 
 #region Structs
 
 public struct PlayerInput
 {
-    public float horizontal_axis;
-    public float vertical_axis;
+    public float horizontalAxis;
+    public float verticalAxis;
+    public float rightHorizontalAxis;
+    public float rightVerticalAxis;
 }
 
 #endregion
@@ -57,12 +84,14 @@ public partial class Player : Entity
 
         public override void Update()
         {
-            player.player_input.horizontal_axis = Input.GetAxis("Horizontal");
-            player.player_input.vertical_axis = Input.GetAxis("Vertical");
+            player.playerInput.horizontalAxis = Input.GetAxis("Horizontal");
+            player.playerInput.verticalAxis = Input.GetAxis("Vertical");
+            player.playerInput.rightHorizontalAxis = Input.GetAxis("R_Horizontal");
+            player.playerInput.rightVerticalAxis = Input.GetAxis("R_Vertical");
         }
     }
 
-    [ActionProperties("Controller", "Camera", 0, false)]
+    [ActionProperties("Controller", "Camera", 0, false, ActionProperties.UpdateType.FixedUpdate)]
     class CameraController : Action
     {
         public override void End() { }
@@ -75,10 +104,9 @@ public partial class Player : Entity
 
         public override void Update()
         {
-            Force walk_force = player.force_controller.GetForce(player.default_forces[0]);
             Vector3 addition = Vector3.zero;
-            if (walk_force != null) addition = walk_force.LastVelocity();
-            player.player_camera.Target(player.transform.position + addition * 0.6f);
+            addition = player.AimDir * 2.0f;
+            player.playerCamera.Target(player.transform.position + addition);
         }
     }
 
@@ -95,11 +123,10 @@ public partial class Player : Entity
 
         public override void Update()
         {
-            if (player.player_input.vertical_axis != 0.0f || player.player_input.horizontal_axis != 0.0f)
+            if (player.playerInput.verticalAxis != 0.0f || player.playerInput.horizontalAxis != 0.0f)
             {
-                Vector3 walk_dir = new Vector3(player.player_input.horizontal_axis, 0.0f, player.player_input.vertical_axis);
-                player.force_controller.AddForce(player.default_forces[0], walk_dir);
-                player.player_animation.CrossFade("Run", 0.2f);
+                Vector2 walk_dir = new Vector2(player.playerInput.horizontalAxis, player.playerInput.verticalAxis);
+                player.rigidBody.AddForce(walk_dir * player.characterController.speed);
             }
         }
     }
@@ -116,9 +143,45 @@ public partial class Player : Entity
 
         public override void Update()
         {
-            player.player_animation.CrossFade("Idle", 0.2f);
+
         }
     }
+    [ActionProperties("Cannon", "Weapons", 1, false)]
+    class Cannon : Action
+    {
+        public bool usedRT = false;
+        public bool usedLT = false;
+
+        public override void End() { }
+        public override void Suspended() { }
+        public override void Queued() { }
+        public override void Start() { }
+
+        public override bool Fail() { return false; }
+        public override bool Goal() { return false; }
+
+        public override void Update()
+        {
+            if (Input.GetAxis("RT") < 0.2f)
+                usedRT = false;
+
+            if (Input.GetAxis("RT") > 0.8f && !usedRT)
+            {
+                player.cannon.Trigger(player.AimDir);
+                usedRT = true;
+            }
+
+            if (Input.GetAxis("LT") < 0.2f)
+                usedLT = false;
+
+            if (Input.GetAxis("LT") > 0.8f && !usedLT)
+            {
+                player.blade.Trigger(player.AimDir);
+                usedLT = true;
+            }
+        }
+    }
+
 }
 
 #endregion

@@ -6,8 +6,9 @@ public class ActionController : MonoBehaviour {
 
     #region Definition
 
-    private List<Action> active_actions = new List<Action>();
-    private List<int> actions_to_remove = new List<int>();
+    private List<Action> updateActions = new List<Action>();
+    private List<Action> fixedActions = new List<Action>();
+    private List<int> removeActions = new List<int>();
 
     #endregion
 
@@ -24,8 +25,11 @@ public class ActionController : MonoBehaviour {
     {
         ///This is useless double check, because in the action before instantiating it, there is the same check
         //if (IsCloned(instance.name, instance.layer)) return false;
+        if (instance.components.action_properties.updateType == ActionProperties.UpdateType.Update)
+            updateActions.Add(instance);
+        else
+            fixedActions.Add(instance);
 
-        active_actions.Add(instance);
         return true;
     }
 
@@ -39,7 +43,14 @@ public class ActionController : MonoBehaviour {
     void Update ()
     {
         StartStep();
-        ActiveActionsStep();
+        ActiveActionsStep(updateActions);
+        EndedActionsStep();
+    }
+
+    void FixedUpdate ()
+    {
+        StartStep();
+        ActiveActionsStep(fixedActions);
         EndedActionsStep();
     }
 
@@ -48,17 +59,17 @@ public class ActionController : MonoBehaviour {
     /// </summary>
     private void StartStep ()
     {
-        actions_to_remove.Clear();
+        removeActions.Clear();
     }
 
     /// <summary>
     /// Refresh active actions calls at every Update
     /// </summary>
-    private void ActiveActionsStep ()
+    private void ActiveActionsStep (List<Action> update)
     {
         int index = 0;
 
-        foreach (Action action in active_actions)
+        foreach (Action action in update)
         {
             ActionInstance.State last_state = action.components.action_instance.state;
 
@@ -68,7 +79,7 @@ public class ActionController : MonoBehaviour {
             ///Check if the action already ended (reached goal or failed) and remove it from curren actions updating
             if (last_state == ActionInstance.State.Failed || last_state == ActionInstance.State.Succeed || last_state == ActionInstance.State.Cancel)
             {
-                actions_to_remove.Add(index);
+                removeActions.Add(index);
             }
 
             index++;
@@ -76,11 +87,11 @@ public class ActionController : MonoBehaviour {
     }
 
     /// <summary>
-    /// Remove ended actions from active_actions list
+    /// Remove ended actions from updateActions list
     /// </summary>
     private void EndedActionsStep ()
     {
-        foreach (int i in actions_to_remove) active_actions.RemoveAt(i);
+        foreach (int i in removeActions) updateActions.RemoveAt(i);
     }
 
     #endregion
@@ -139,7 +150,7 @@ public class ActionController : MonoBehaviour {
 
     protected void GetActionsInLayer (string layer, ref List<Action> layer_actions)
     {
-        foreach (Action action in active_actions)
+        foreach (Action action in updateActions)
         {
             if (action.components.action_properties.layer == layer)
             {

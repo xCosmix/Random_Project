@@ -9,6 +9,15 @@ public class Enemy : Entity {
 
     public float fieldOfView = 10.0f;
 
+    public Weapon weapon;
+
+    protected Vector2 aimDir;
+    public override Vector2 AimDir
+    {
+        get { return aimDir; }
+        set { aimDir = value; }
+    }
+
     protected override void CustomStart()
     {
         blackBoard = new Blackboard(this.gameObject);

@@ -7,37 +7,34 @@ namespace EnemyActions
     [ActionProperties("Random", "Movement", 1, false)]
     class RandomMovement : Action
     {
-        public RandomMovement (float radius, ForceProps force)
+        public RandomMovement (float radius)
         {
             this.radius = radius;
-            this.force = force;
         }
         float radius;
-        ForceProps force;
 
         Entity me;
-        Vector3[] path;
-        Vector3 currentGoal;
+        Vector2[] path;
+        Vector2 currentGoal;
         int currentPoint = 0;
         float goalDistance = 0.0f;
 
-        public override void End() { Debug.Log("wi"); }
+        public override void End() {}
         public override void Suspended() { }
         public override void Queued() { }
         public override void Start()
         {
             me = components.action_target.GetComponent<Entity>();
-            Vector3 myPosition = me.transform.position;
-            Vector3 goal = myPosition;
+            Vector2 myPosition = me.transform.position;
+            Vector2 goal = myPosition;
             goal.x += Random.Range(-radius, radius);
-            goal.z += Random.Range(-radius, radius);
+            goal.y += Random.Range(-radius, radius);
 
             path = Path.FindPath(myPosition, goal);
             currentPoint = 0;
             goalDistance = Grid.GetNodeSize() * 0.5f;
 
             currentGoal = path[currentPoint];
-            currentGoal.y = myPosition.y;
         }
 
         public override bool Fail() { return path.Length <= 1; }
@@ -52,20 +49,75 @@ namespace EnemyActions
             }
             */
 
-            Vector3 myPosition = me.transform.position;
+            Vector2 myPosition = me.transform.position;
 
             if ((currentGoal - myPosition).magnitude < goalDistance)
             {
                 currentPoint++;
                 currentPoint = Mathf.Clamp(currentPoint, 0, path.Length - 1);
                 currentGoal = path[currentPoint];
-                currentGoal.y = myPosition.y;
             }
 
-            //Debug.DrawLine(currentGoal, currentGoal + Vector3.up * 10.0f, Color.red);
+            //Debug.DrawLine(currentGoal, currentGoal + Vector2.up * 10.0f, Color.red);
 
-            Vector3 moveDir = currentGoal - me.transform.position;
-            me.forceController().AddForce(force, moveDir);
+            Vector2 moveDir = currentGoal - (Vector2)me.transform.position;
+            me.RigidBody.AddForce(moveDir * me.characterController.speed);
         }
+    }
+
+    [ActionProperties("Aim", "Input", 0, false)]
+    class Aim : Action
+    {
+        /// <summary>
+        /// Aim to player or target
+        /// </summary>
+        public Aim(float accuaracy)
+        {
+            this.accuaracy = accuaracy;
+        }
+
+        float accuaracy;
+        Enemy me;
+
+        public override void End() { }
+        public override void Suspended() { }
+        public override void Queued() { }
+        public override void Start()
+        {
+            if (Player.player == null) return;
+
+            me = components.action_target.GetComponent<Enemy>();
+            Vector2 myPos = me.transform.position;
+            Vector2 targetPos = Player.player.transform.position;
+            Vector2 perfectShot = (targetPos - myPos).normalized;
+
+            float percent = 1.0f - accuaracy;
+            float angle = Random.Range(90.0f * -percent, 90 * percent);
+            Vector2 realShot = Quaternion.AngleAxis(angle, Vector3.forward) * perfectShot;
+            me.AimDir = realShot;
+        }
+        public override bool Fail() { return false; }
+        public override bool Goal() { return true; }
+
+        public override void Update() { }
+    }
+
+    [ActionProperties("Shoot", "Attack", 1, false)]
+    class Shoot : Action
+    {
+        Enemy me;
+
+        public override void End() { }
+        public override void Suspended() { }
+        public override void Queued() { }
+        public override void Start()
+        {
+            me = components.action_target.GetComponent<Enemy>();
+            me.weapon.Trigger(me.AimDir);
+        }
+        public override bool Fail() { return false; }
+        public override bool Goal() { return true; }
+
+        public override void Update() { }
     }
 }

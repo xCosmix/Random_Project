@@ -6,17 +6,20 @@ using System.Reflection;
 
 public class ActionProperties : Attribute
 {
+    public enum UpdateType { Update, FixedUpdate }
     public readonly string name;
     public readonly string layer;
     public readonly uint priority;
     public readonly bool queueable;
+    public readonly UpdateType updateType;
 
-    public ActionProperties(string name, string layer, uint priority, bool queueable)
+    public ActionProperties(string name, string layer, uint priority, bool queueable, UpdateType updateType = UpdateType.Update)
     {
         this.name = name;
         this.layer = layer;
         this.priority = priority;
         this.queueable = queueable;
+        this.updateType = updateType;
     }
 }
 

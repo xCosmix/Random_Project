@@ -8,14 +8,15 @@ namespace Forces
     /// </summary>
     public class ForceController : System.Object
     {
-        protected List<Force> active_forces = new List<Force>();
+        protected Dictionary<string, Force> active_forces = new Dictionary<string, Force>();
         protected List<Force2Call> call_forces = new List<Force2Call>();
-        protected List<int> null_forces_index = new List<int>();
-        protected CharacterController controller;
+        protected List<string> null_forces_index = new List<string>();
 
-        public ForceController(CharacterController controller)
+        protected Rigidbody2D rigidBody;
+
+        public ForceController(Rigidbody2D rigidBody)
         {
-            this.controller = controller;
+            this.rigidBody = rigidBody;
         }
 
         public void AddForce(ForceProps forceProps, Vector3 direction)
@@ -26,16 +27,14 @@ namespace Forces
 
         public Force GetForce(ForceProps force)
         {
-            foreach (Force f in active_forces)
-            {
-                if (f.properties.Name == force.Name) return f;
-            }
+            if (active_forces.ContainsKey(force.Name))
+                return active_forces[force.Name];
             return null;
         }
 
         public void Actualize()
         {
-            Vector3 final_velocity = Vector3.zero;
+            Vector2 final_velocity = Vector2.zero;
 
             ///ADD AND CALL STEP
             foreach (Force2Call f in call_forces)
@@ -44,25 +43,25 @@ namespace Forces
             }
 
             ///APPLY STEP
-            for (int i = 0; i < active_forces.Count; i++)
+            foreach (string key in active_forces.Keys)
             {
-                Force f = active_forces[i];
+                Force f = active_forces[key];
 
-                Vector3 add = f.Velocity();
+                Vector2 add = f.Velocity();
                 final_velocity += add;
 
                 ///Add to null forces if the force isnt using
                 if (!f.Using())
-                    null_forces_index.Add(i);
+                    null_forces_index.Add(f.properties.Name);
             }
 
             ///MOVE STEP
-            controller.Move(final_velocity * Time.deltaTime);
+            rigidBody.velocity = final_velocity * Time.deltaTime * 100.0f;
 
             ///CLEAR STEP
-            foreach (int i in null_forces_index)
+            foreach (string i in null_forces_index)
             {
-                active_forces.RemoveAt(i);
+                active_forces.Remove(i);
             }
 
             call_forces.Clear();
@@ -71,15 +70,13 @@ namespace Forces
 
         protected Force Target(ForceProps force, Vector3 direction)
         {
-            foreach (Force f in active_forces)
+            Force out_ = GetForce(force);
+
+            if (out_ == null)
             {
-                if (f.properties.Name == force.Name)
-                {
-                    return f;
-                }
+                out_ = new Force(force, direction);
+                active_forces.Add(out_.properties.Name, out_);
             }
-            Force out_ = new Force(force, direction);
-            active_forces.Add(out_);
 
             return out_;
         }

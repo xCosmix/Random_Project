@@ -4,7 +4,7 @@ namespace Pathfinding
 {
     public static class Path
     {
-        public static Vector3[] FindPath(Vector3 from, Vector3 target)
+        public static Vector2[] FindPath(Vector3 from, Vector3 target)
         {
             #region Defintion
 
@@ -91,17 +91,17 @@ namespace Pathfinding
 
             #region Default
 
-            return new Vector3[] { startNode.position };
+            return new Vector2[] { startNode.position };
 
             #endregion
         }
 
-        private static Vector3[] RetracePath(Node startNode, Node endNode)
+        private static Vector2[] RetracePath(Node startNode, Node endNode)
         {
             List<Node> path = new List<Node>();
             Node currentNode = endNode;
 
-            if (currentNode == startNode) return new Vector3[] { startNode.position };
+            if (currentNode == startNode) return new Vector2[] { startNode.position };
 
             while (currentNode != startNode)
             {
@@ -109,7 +109,7 @@ namespace Pathfinding
                 currentNode = currentNode.values.Parent;
             }
             
-            Vector3[] output = new Vector3[path.Count];
+            Vector2[] output = new Vector2[path.Count];
             for (int i = 0; i < path.Count; i++)
             {
                 output[i] = path[path.Count - 1 - i].position;

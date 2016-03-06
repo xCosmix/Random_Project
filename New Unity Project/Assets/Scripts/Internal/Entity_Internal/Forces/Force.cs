@@ -8,11 +8,11 @@ namespace Forces
 
         public ForceProps properties;
 
-        protected Vector3 goal_vector = Vector3.forward;
-        protected Vector3 last_velocity = Vector3.zero;
-        protected Vector3 init_in = Vector3.zero;
-        protected Vector3 init_out = Vector3.zero;
-        protected Vector3 current_output = Vector3.zero;
+        protected Vector2 goal_vector = Vector2.up;
+        protected Vector2 last_velocity = Vector2.zero;
+        protected Vector2 init_in = Vector2.zero;
+        protected Vector2 init_out = Vector2.zero;
+        protected Vector2 current_output = Vector2.zero;
         protected float init_time = 0.0f;
 
         /// <summary>
@@ -41,22 +41,22 @@ namespace Forces
         /// </summary>
         protected float time_notCalling = 0.0f;
 
-        public Force(string id, Vector3 target_direction, float target_speed, float inertia_in = 1.0f, float inertia_out = 1.0f)
+        public Force(string id, Vector2 target_direction, float target_speed, float inertia_in = 1.0f, float inertia_out = 1.0f, float impulse = 0.0f)
         {
-            properties = new ForceProps(id, target_speed, inertia_in, inertia_out);
+            properties = new ForceProps(id, target_speed, inertia_in, inertia_out, impulse);
 
             Call(target_direction);
         }
-        public Force(ForceProps props, Vector3 target_direction)
+        public Force(ForceProps props, Vector2 target_direction)
         {
             properties = props;
 
             Call(target_direction);
         }
-        public Vector3 Velocity()
+        public Vector2 Velocity()
         {
-            Vector3 delta = Vector3.zero;
-            Vector3 current_target_velocity = Vector3.zero;
+            Vector2 delta = Vector2.zero;
+            Vector2 current_target_velocity = Vector2.zero;
 
             if (init_time == 0.0f) Initialize();
 
@@ -73,8 +73,11 @@ namespace Forces
         /// <summary>
         /// called by user to add force
         /// </summary>
-        public void Call(Vector3 new_goal_vector)
+        public void Call(Vector2 new_goal_vector)
         {
+            if (properties.forceMode == ForceMode.Impulse)
+                Initialize();
+
             last_call_time = Time.time;
             goal_vector = new_goal_vector.normalized * properties.target_speed;
         }
@@ -85,13 +88,13 @@ namespace Forces
         public bool Using()
         {
             //Wait half a second to check if the velocity is null
-            return (Time.time - last_call_time) < 0.5f || last_velocity != Vector3.zero;
+            return (Time.time - last_call_time) < 0.5f || last_velocity != Vector2.zero;
         }
         /// <summary>
         /// Returns the value of the last call
         /// </summary>
         /// <returns></returns>
-        public Vector3 LastVelocity()
+        public Vector2 LastVelocity()
         {
             return last_velocity;
         }
@@ -103,6 +106,9 @@ namespace Forces
 
         protected void StartStep()
         {
+            ///Is the force acting like an impulse? if it is, then stop calling if impulse time < currentTime
+            bool impulse = (properties.impulse > 0.0f && Time.time - init_time < properties.impulse);
+
             current_delta_step = last_step_time == 0.0f ? 0.0f : Time.time - last_step_time;
 
             if (last_call_time == 0.0f)
@@ -112,7 +118,7 @@ namespace Forces
             }
             else
             {
-                if (last_step_time - last_call_time > current_delta_step)
+                if (last_step_time - last_call_time > current_delta_step && !impulse)
                 {
                     current_delta_notCall = current_delta_step;
                     ///set a start point to fade velocity
@@ -134,36 +140,36 @@ namespace Forces
             time_stepping += current_delta_step;
         }
 
-        protected Vector3 FadeIn()
+        protected Vector2 FadeIn()
         {
             // float fade_in_fact = 0.0f;
-            Vector3 output = Vector3.zero;
+            Vector2 output = Vector2.zero;
 
-            if (current_delta_call <= 0.0f) return Vector3.zero;
+            if (current_delta_call <= 0.0f) return Vector2.zero;
 
             //fade_in_fact = Mathf.Clamp01(time_calling / inertia_in);
             output = (goal_vector - last_velocity) * (current_delta_call / properties.inertia_in);
 
             return output;
         }
-        protected Vector3 FadeOut()
+        protected Vector2 FadeOut()
         {
             //float fade_out_fact = 0.0f;
-            Vector3 output = Vector3.zero;
+            Vector2 output = Vector2.zero;
 
-            if (current_delta_notCall <= 0.0f) return Vector3.zero;
+            if (current_delta_notCall <= 0.0f) return Vector2.zero;
 
             //fade_out_fact = Mathf.Clamp01(time_notCalling / inertia_in);
-            output = (Vector3.zero - last_velocity) * (current_delta_notCall / properties.inertia_in);
+            output = (Vector2.zero - last_velocity) * (current_delta_notCall / properties.inertia_out);
 
             return output;
         }
-        protected Vector3 Clamp(Vector3 vector, Vector3 max)
+        protected Vector2 Clamp(Vector2 vector, Vector2 max)
         {
             float max_magnitude = max.magnitude;
             float currentMagnitude = vector.magnitude;
-            float dot = Vector3.Dot(vector, max);
-            Vector3 output = vector;
+            float dot = Vector2.Dot(vector, max);
+            Vector2 output = vector;
 
             //check if it is calling to clamp
             if (currentMagnitude > max_magnitude && dot > 0.0f && current_delta_call != 0.0f)
@@ -173,7 +179,7 @@ namespace Forces
             //checl if is not calling to clamp to zero
             else if (dot <= 0.0f && current_delta_call == 0.0f)
             {
-                output = Vector3.zero;
+                output = Vector2.zero;
             }
 
             return output;

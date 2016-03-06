@@ -22,7 +22,7 @@ namespace Pathfinding
 
         void OnDrawGizmos()
         {
-            Gizmos.DrawWireCube(transform.position, new Vector3(worldSize.x, 1, worldSize.y));
+            Gizmos.DrawWireCube(transform.position, new Vector3(worldSize.x, worldSize.y, 0.0f));
         }
     }
 }

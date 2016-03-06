@@ -9,7 +9,7 @@ namespace Pathfinding
         private static float nodeSize;
         private static Coords gridSize;
 
-        public static void Create(float nodeRadius, Vector2 worldSize, Vector3 center, LayerMask unwalkableMask)
+        public static void Create(float nodeRadius, Vector2 worldSize, Vector2 center, LayerMask unwalkableMask)
         {
             Grid.nodeSize = nodeRadius * 2;
             int gridSizeX = Mathf.RoundToInt(worldSize.x / nodeSize);
@@ -17,14 +17,14 @@ namespace Pathfinding
             gridSize = new Coords(gridSizeX, gridSizeY);
             grid = new Node[gridSize.x, gridSize.y];
 
-            Vector3 bottomLeft = center - (Vector3.right * (worldSize.x / 2)) - (Vector3.forward * (worldSize.y / 2));
+            Vector2 bottomLeft = center - (Vector2.right * (worldSize.x / 2)) - (Vector2.up * (worldSize.y / 2));
 
             for (int x = 0; x < gridSize.x; x++)
             {
                 for (int y = 0; y < gridSize.y; y++)
                 {
-                    Vector3 worldPoint = bottomLeft + Vector3.right * (x * nodeSize + nodeRadius) + Vector3.forward * (y * nodeSize + nodeRadius);
-                    bool walkable = !(Physics.CheckSphere(worldPoint, nodeRadius, unwalkableMask));
+                    Vector2 worldPoint = bottomLeft + Vector2.right * (x * nodeSize + nodeRadius) + Vector2.up * (y * nodeSize + nodeRadius);
+                    bool walkable = !(Physics2D.OverlapCircle(worldPoint, nodeRadius, unwalkableMask));
                     grid[x, y] = new Node(walkable, worldPoint, x, y);
                 }
             }
@@ -50,7 +50,7 @@ namespace Pathfinding
         {
             Vector3 startPoint = grid[0, 0].position;
             float deltaX = point.x - startPoint.x;
-            float deltaY = point.z - startPoint.z;
+            float deltaY = point.y - startPoint.y;
 
             int x = Mathf.RoundToInt(deltaX / nodeSize);
             int y = Mathf.RoundToInt(deltaY / nodeSize);

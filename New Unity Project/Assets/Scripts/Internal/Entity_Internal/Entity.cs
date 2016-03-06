@@ -1,19 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Forces;
 
-[RequireComponent(typeof(CharacterController))]
-public class Entity : MonoBehaviour {
+[RequireComponent(typeof(Rigidbody2D))]
+public abstract class Entity : MonoBehaviour {
 
     #region Components
 
-    protected CharacterController character_controller;
-    protected ForceController force_controller;
-    protected ActionController action_controller;
+    protected Rigidbody2D rigidBody;
+    protected ActionController actionController;
+    protected SpriteRenderer spriteRenderer;
 
-    public ForceController forceController ()
+    public Rigidbody2D RigidBody
     {
-        return force_controller;
+        get { return rigidBody; }
     }
 
     #endregion
@@ -27,17 +28,92 @@ public class Entity : MonoBehaviour {
     #region CharacterController
 
     public CCProperties characterController;
-    protected ForceProps[] default_forces;
-    
-    protected void LookAtWalkForce ()
-    {
-        Force current = force_controller.GetForce(default_forces[0]);
-        Vector3 current_direction = current == null ? Vector3.zero : current.LastVelocity();
-        if (current_direction == Vector3.zero) return;
+    public abstract Vector2 AimDir { get; set; }
 
-        Quaternion look_rotation = Quaternion.LookRotation(current_direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, look_rotation, Time.deltaTime * characterController.rotation_speed);
+    #endregion
+
+    #region Events
+
+    delegate void DamageEvent(HitProps hit);
+    //event DamageEvent OnDamage;
+    //event DamageEvent OnDead;
+
+    #region Damage & Dead
+
+    public sealed class HitProps
+    {
+        public readonly Weapon weapon;
+        public readonly Vector2 hitPoint;
+        public readonly float time;
+
+        public HitProps(Weapon weapon, Vector2 hitPoint)
+        {
+            this.weapon = weapon;
+            this.hitPoint = hitPoint;
+
+            time = Time.time;
+        }
     }
+
+    private HitProps lastHit;
+    public const float inmuneTime = 0.2f;
+
+    public void WeaponHit (Weapon weapon, Vector2 hitPoint)
+    {
+        if (lastHit != null) 
+            if (Time.time - lastHit.time < inmuneTime) return;
+
+        lastHit = new HitProps(weapon, hitPoint);
+        Damage();
+    }
+
+    private void Damage ()
+    { 
+        stats.life--;
+        if (stats.life <= 0) { stats.life = 0; Die(); } else { Hit(); }
+    }
+    private void Die ()
+    {
+        //OnDead(lastHit);
+        StartCoroutine(DieSteps());
+    }
+    private void Hit ()
+    {
+        //OnDamage(lastHit);
+        StartCoroutine(HitSteps());
+    }
+
+    private IEnumerator DieSteps ()
+    {
+        yield return StartCoroutine(DieAnimation());
+        Destroy(this.gameObject);
+    }
+    private IEnumerator HitSteps ()
+    {
+        StartCoroutine(DefaultHitAnimation());
+        StartCoroutine(HitAnimation());
+        yield break;
+    }
+    protected virtual IEnumerator DieAnimation () { yield break; }
+    protected virtual IEnumerator HitAnimation () { yield break; }
+
+    private IEnumerator DefaultHitAnimation ()
+    {
+        float pushForce = (lastHit.weapon.HitWeight - characterController.weight);
+        pushForce = pushForce < 0.2f ? 0.2f : pushForce;
+
+        Vector2 direction = ((Vector2)transform.position - lastHit.hitPoint).normalized;
+        rigidBody.AddForce(direction * pushForce, ForceMode2D.Impulse);
+
+        Color realColor = spriteRenderer.color;
+        spriteRenderer.color = Color.red;
+
+        yield return new WaitForSeconds(inmuneTime);
+
+        spriteRenderer.color = realColor;
+    }
+
+    #endregion
 
     #endregion
 
@@ -50,13 +126,9 @@ public class Entity : MonoBehaviour {
 
     void Start ()
     {
-        character_controller = GetComponent<CharacterController>();
-        force_controller = new ForceController(character_controller);
-        action_controller = gameObject.AddComponent<ActionController>();
-
-        default_forces = new ForceProps[]{
-            new ForceProps("Walk", characterController.speed, 0.1f, 0.1f)
-        };
+        rigidBody = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        actionController = gameObject.AddComponent<ActionController>();
 
         CustomStart();
     }
@@ -78,13 +150,12 @@ public class Entity : MonoBehaviour {
     void Update ()
     {
         CustomUpdate();
-        LookAtWalkForce();
-        force_controller.Actualize();
 	}
 
     void FixedUpdate ()
     {
         CustomFixedUpdate();
+        //forceController.Actualize();
     }
 
     protected virtual void CustomUpdate ()
@@ -116,7 +187,6 @@ public class Entity : MonoBehaviour {
     public struct CCProperties
     {
         public float speed;
-        public float rotation_speed;
         public float weight;
         public ForceProps[] forces;
     }

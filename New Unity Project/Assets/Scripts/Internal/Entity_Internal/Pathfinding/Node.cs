@@ -52,13 +52,13 @@ namespace Pathfinding
     {
 
         public readonly bool walkable;
-        public readonly Vector3 position;
+        public readonly Vector2 position;
         public readonly Coords gridPos;
         public readonly Coords[] neighbours;
 
         public NodeValue values;
 
-        public Node(bool walkable, Vector3 position, int gridX, int gridY)
+        public Node(bool walkable, Vector2 position, int gridX, int gridY)
         {
             this.walkable = walkable;
             this.position = position;

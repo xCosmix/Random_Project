@@ -62,11 +62,12 @@ namespace BehaviourTree
 
         public override State Tick(Tick tick)
         {
-            MeshRenderer renderer = tick.blackBoard.agent.GetComponent<MeshRenderer>();
+            SpriteRenderer renderer = tick.blackBoard.agent.GetComponent<SpriteRenderer>();
+            if (renderer == null) renderer = tick.blackBoard.agent.GetComponentInChildren<SpriteRenderer>();
 
             if (renderer == null) return State.Error;
 
-            renderer.material.color = color;
+            renderer.color = color;
             return State.Success;
         }
     }

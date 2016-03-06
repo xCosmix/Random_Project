@@ -3,6 +3,7 @@ using System.Collections;
 
 namespace Forces
 {
+    public enum ForceMode { Force, Impulse }
     /// <summary>
     /// Label force static information
     /// </summary>
@@ -22,16 +23,27 @@ namespace Forces
         /// </summary>
         public float inertia_out;
         /// <summary>
+        /// time calling without Update
+        /// </summary>
+        public float impulse;
+        /// <summary>
         /// goal speed
         /// </summary>
         public float target_speed;
+        /// <summary>
+        /// mode of applying this force
+        /// </summary>
+        public ForceMode forceMode;
+        
 
-        public ForceProps(string Name, float target_speed, float inertia_in = 1.0f, float inertia_out = 1.0f)
+        public ForceProps(string Name, float target_speed, float inertia_in = 1.0f, float inertia_out = 1.0f, float impulse = 0.0f)
         {
             this.Name = Name;
             this.target_speed = target_speed;
             this.inertia_in = inertia_in;
             this.inertia_out = inertia_out;
+            this.impulse = impulse;
+            this.forceMode = impulse > 0.0f ? ForceMode.Impulse : ForceMode.Force;
         }
     }
     /// <summary>

@@ -6,11 +6,11 @@ public class test : MonoBehaviour {
     public static double averageTime;
     public static int iterations;
     public Transform[] a;
-     Vector3[][] paths;
+     Vector2[][] paths;
     public Transform b;
 	// Use this for initialization
 	void Start () {
-        paths = new Vector3[a.Length][];
+        paths = new Vector2[a.Length][];
     }
 	
 	// Update is called once per frame
@@ -32,7 +32,7 @@ public class test : MonoBehaviour {
     void OnDrawGizmos ()
     {
         if (paths == null) return;
-        foreach (Vector3[] path in paths)
+        foreach (Vector2[] path in paths)
         {
             for (int i = 1; i < path.Length; i++)
             {
