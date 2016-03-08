@@ -31,6 +31,7 @@ public abstract class Enemy : Entity {
 
     protected override void CustomStart()
     {
+        animator = GetComponent<Animator>();
         energyPointPrefab = Resources.Load<GameObject>("Prefabs/EnergyDrop");
         blackBoard = new Blackboard(this.gameObject);
         EnemyStart();

@@ -19,7 +19,7 @@ namespace EnemyActions
         int currentPoint = 0;
         float goalDistance = 0.0f;
 
-        public override void End() {}
+        public override void End() { me.Animator.SetBool("run", false); }
         public override void Suspended() { }
         public override void Queued() { }
         public override void Start()
@@ -42,23 +42,17 @@ namespace EnemyActions
 
         public override void Update()
         {
-            /*
-            for (int i = 1; i < path.Length; i++)
-            {
-                Debug.DrawLine(path[i - 1], path[i]);
-            }
-            */
+            ///GENERIC ANIMATION 
+            me.Animator.SetBool("run", true);
 
+            ///move
             Vector2 myPosition = me.transform.position;
-
             if ((currentGoal - myPosition).magnitude < goalDistance)
             {
                 currentPoint++;
                 currentPoint = Mathf.Clamp(currentPoint, 0, path.Length - 1);
                 currentGoal = path[currentPoint];
             }
-
-            //Debug.DrawLine(currentGoal, currentGoal + Vector2.up * 10.0f, Color.red);
 
             Vector2 moveDir = currentGoal - (Vector2)me.transform.position;
             me.RigidBody.AddForce(moveDir * me.characterController.speed);
@@ -88,7 +82,7 @@ namespace EnemyActions
             startTime = Time.time;
 
             warning = ObjectPool.Pool.New(warningPrefab, (Vector2)me.transform.position + (Vector2.up * me.transform.localScale.y * 0.5f), warningPrefab.transform.rotation, 10);
-            warning.transform.SetParent(me.transform);
+            //warning.transform.SetParent(me.transform);
         }
         public override bool Fail() { return false; }
         public override bool Goal() { return Time.time - startTime > me.CastTime; }

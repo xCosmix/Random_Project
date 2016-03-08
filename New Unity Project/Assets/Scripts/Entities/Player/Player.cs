@@ -14,8 +14,7 @@ public partial class Player : Entity {
 
     protected PlayerCamera playerCamera;
     protected PlayerInput playerInput;
-    protected Animator animator;
-    
+
     protected Vector2 lastAimDir = Vector2.up;
     public override Vector2 AimDir
     {
@@ -153,12 +152,6 @@ public partial class Player : Entity
         public override void Update()
         {
             player.animator.SetBool("run", false);
-
-            float dir = Mathf.Sign(player.AimDir.x);
-            Vector2 scale = player.transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * dir;
-
-            player.transform.localScale = scale;
         }
     }
     [ActionProperties("Cannon", "Weapons", 1, false)]

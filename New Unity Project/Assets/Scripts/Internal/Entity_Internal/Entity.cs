@@ -11,6 +11,11 @@ public abstract class Entity : MonoBehaviour {
     protected Rigidbody2D rigidBody;
     protected ActionController actionController;
     protected SpriteRenderer spriteRenderer;
+    protected Animator animator;
+    public Animator Animator
+    {
+        get { return animator; }
+    }
 
     public Rigidbody2D RigidBody
     {
@@ -129,6 +134,7 @@ public abstract class Entity : MonoBehaviour {
         rigidBody = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         actionController = gameObject.AddComponent<ActionController>();
+        animator = GetComponent<Animator>();
 
         CustomStart();
     }
@@ -150,6 +156,7 @@ public abstract class Entity : MonoBehaviour {
     void Update ()
     {
         CustomUpdate();
+        LookAimDir();
 	}
 
     void FixedUpdate ()
@@ -169,6 +176,15 @@ public abstract class Entity : MonoBehaviour {
     }
 
     #endregion
+
+    private void LookAimDir ()
+    {
+        float dir = Mathf.Sign(AimDir.x);
+        Vector2 scale = transform.localScale;
+        scale.x = Mathf.Abs(scale.x) * dir;
+
+        transform.localScale = scale;
+    }
 }
 
 #region Structs
