@@ -17,7 +17,7 @@ public class NormalCannon : Weapon
     {
         get
         {
-            return 0.2f;
+            return 0.3f;
         }
     }
 

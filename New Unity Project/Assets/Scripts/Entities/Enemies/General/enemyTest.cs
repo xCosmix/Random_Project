@@ -2,11 +2,20 @@
 using System.Collections;
 using BehaviourTree;
 using EnemyActions;
+using System;
 
 public class enemyTest : Enemy {
 
-	// Use this for initialization
-	protected override void EnemyStart () {
+    public override float CastTime
+    {
+        get
+        {
+            return 1.0f;
+        }
+    }
+
+    // Use this for initialization
+    protected override void EnemyStart () {
 
         weapon = new NormalCannon(this);
 
@@ -14,7 +23,7 @@ public class enemyTest : Enemy {
         (
            new Node[]
            {
-                new XProbabilistic
+                new MemProbabilistic
                 (
                     new Node[]
                     {
@@ -39,6 +48,7 @@ public class enemyTest : Enemy {
                         (
                             new Node[]
                             {
+                                new XAction<CastAttack>(),
                                 new XAction<Aim>(0.8f),
                                 new XAction<Shoot>()
                             }

@@ -53,7 +53,7 @@ public abstract class Weapon : IWeapon
     {
         if (!CanUse()) return;
 
-        this.direction = direction;
+        this.direction = direction.normalized;
 
         if (currentOverCharge > OverChargeValue) {
             OverCharge();

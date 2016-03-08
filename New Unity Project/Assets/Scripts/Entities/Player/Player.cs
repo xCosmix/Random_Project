@@ -14,6 +14,7 @@ public partial class Player : Entity {
 
     protected PlayerCamera playerCamera;
     protected PlayerInput playerInput;
+    protected Animator animator;
     
     protected Vector2 lastAimDir = Vector2.up;
     public override Vector2 AimDir
@@ -28,12 +29,19 @@ public partial class Player : Entity {
         }
         set { return; }
     }
+    protected int score = 0;
+    public int Score
+    {
+        get { return score; }
+        set { score += value; }
+    }
 
     private Weapon cannon;
     private Weapon blade;
 
     // Use this for initialization
     protected override void CustomStart () {
+        animator = GetComponent<Animator>();
         playerCamera = PlayerCamera.Get();
         player = this;
 
@@ -127,6 +135,7 @@ public partial class Player : Entity
             {
                 Vector2 walk_dir = new Vector2(player.playerInput.horizontalAxis, player.playerInput.verticalAxis);
                 player.rigidBody.AddForce(walk_dir * player.characterController.speed);
+                player.animator.SetBool("run", true);
             }
         }
     }
@@ -143,7 +152,13 @@ public partial class Player : Entity
 
         public override void Update()
         {
+            player.animator.SetBool("run", false);
 
+            float dir = Mathf.Sign(player.AimDir.x);
+            Vector2 scale = player.transform.localScale;
+            scale.x = Mathf.Abs(scale.x) * dir;
+
+            player.transform.localScale = scale;
         }
     }
     [ActionProperties("Cannon", "Weapons", 1, false)]

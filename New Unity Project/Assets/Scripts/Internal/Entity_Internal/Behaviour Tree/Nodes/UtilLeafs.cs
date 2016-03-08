@@ -143,7 +143,11 @@ namespace BehaviourTree
         public override void Close(Tick tick)
         {
             Action action = tick.blackBoard.Get<Action>("Action", tick.tree, this);
-            action.components.action_instance.Cancel();
+            ActionInstance actionInstance = action.components.action_instance;
+
+            ///Cancel action if it isnt already ended
+            if (actionInstance.state != ActionInstance.State.Failed && actionInstance.state != ActionInstance.State.Succeed)
+                action.components.action_instance.Cancel();
         }
     }
 }

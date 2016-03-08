@@ -30,24 +30,6 @@ namespace BehaviourTree
         }
     }
 
-    public class Priority : Compositor
-    {
-        public Priority(Node[] children) : base(children) { }
-
-        public override State Tick(Tick tick)
-        {
-            for (int i = 0; i < children.Length; i++)
-            {
-                State state = children[i].Execute(tick);
-
-                if (state != State.Failure) return state;
-
-            }
-
-            return State.Failure;
-        }
-    }
-
     public class MemSequence : Compositor
     {
         public MemSequence(Node[] children) : base(children) { }
@@ -75,6 +57,23 @@ namespace BehaviourTree
         }
     }
 
+    public class Priority : Compositor
+    {
+        public Priority(Node[] children) : base(children) { }
+
+        public override State Tick(Tick tick)
+        {
+            for (int i = 0; i < children.Length; i++)
+            {
+                State state = children[i].Execute(tick);
+                if (state != State.Failure) return state;
+
+            }
+
+            return State.Failure;
+        }
+    }
+
     public class MemPriority : Compositor
     {
         public MemPriority(Node[] children) : base(children) { }
@@ -89,7 +88,6 @@ namespace BehaviourTree
             for (int i = child; i < children.Length; i++)
             {
                 State state = children[i].Execute(tick);
-
                 if (state != State.Failure)
                 {
                     if (state == State.Running) tick.blackBoard.Set("runningChild", i, tick.tree, this);
@@ -115,9 +113,9 @@ namespace BehaviourTree
         }
     }
 
-    public class XProbabilistic : Compositor
+    public class MemProbabilistic : Compositor
     {
-        public XProbabilistic(Node[] children) : base(children) { }
+        public MemProbabilistic(Node[] children) : base(children) { }
 
         public override void Open(Tick tick)
         {

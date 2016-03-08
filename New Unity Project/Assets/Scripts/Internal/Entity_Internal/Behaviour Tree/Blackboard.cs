@@ -7,18 +7,6 @@ namespace BehaviourTree
     {
         public Memory treeMemory = new Memory();
         public Dictionary<Node, Memory> nodeMemory = new Dictionary<Node, Memory>();
-
-        public Node[] OpenNodes()
-        {
-            List<Node> list = new List<Node>();
-            foreach (Node node in nodeMemory.Keys)
-            {
-                if (!nodeMemory[node].Get<bool>("isOpen")) continue;
-                list.Add(node);
-            }
-            Node[] output = list.ToArray();
-            return output;
-        }
     }
     public sealed class Memory
     {

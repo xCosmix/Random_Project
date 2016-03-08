@@ -65,6 +65,37 @@ namespace EnemyActions
         }
     }
 
+    [ActionProperties("Cast", "Attack", 0, false)]
+    class CastAttack : Action
+    {
+        Enemy me;
+        float startTime;
+        GameObject warning;
+
+        static GameObject warningPrefab;
+
+        public override void End() { ObjectPool.Pool.Destroy(warning); }
+        public override void Suspended() { }
+        public override void Queued() { }
+        public override void Start()
+        {
+            if (warningPrefab == null)
+            {
+                warningPrefab = Resources.Load<GameObject>("Prefabs/WarningSign");
+            }
+            me = components.action_target.GetComponent<Enemy>();
+
+            startTime = Time.time;
+
+            warning = ObjectPool.Pool.New(warningPrefab, (Vector2)me.transform.position + (Vector2.up * me.transform.localScale.y * 0.5f), warningPrefab.transform.rotation, 10);
+            warning.transform.SetParent(me.transform);
+        }
+        public override bool Fail() { return false; }
+        public override bool Goal() { return Time.time - startTime > me.CastTime; }
+
+        public override void Update() { }
+    }
+
     [ActionProperties("Aim", "Input", 0, false)]
     class Aim : Action
     {

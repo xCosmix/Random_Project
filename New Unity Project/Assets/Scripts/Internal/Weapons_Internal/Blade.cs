@@ -25,13 +25,14 @@ public class Blade : MonoBehaviour {
     IEnumerator BladeCheck () {
         float currentTime = 0.0f;
         float interpolation = 0.0f;
+        Transform ownerT = owner.owner.transform;
 
         while (currentTime < duration)
         {
             interpolation = currentTime / duration;
-            Collider2D[] colls = Physics2D.OverlapCircleAll(transform.position, radius);
+            Collider2D[] colls = Physics2D.OverlapCircleAll(ownerT.position, radius);
 
-            Vector2 currentBladeDirection = Quaternion.AngleAxis(angle / -2.0f + (angle * interpolation), Vector3.forward) * dir;
+            Vector2 currentBladeDirection = Quaternion.AngleAxis(angle / 2.0f - (angle * interpolation), Vector3.forward) * dir;
 
             foreach (Collider2D coll in colls)
             {
@@ -41,7 +42,7 @@ public class Blade : MonoBehaviour {
                 if (coll.gameObject == owner.owner) continue;
 
                 Vector2 position = coll.gameObject.transform.position;
-                Vector2 currentDir = position - (Vector2)transform.position;
+                Vector2 currentDir = position - (Vector2)ownerT.position;
                 float angleDiff = Vector2.Angle(currentDir.normalized, currentBladeDirection);
 
                 if (angleDiff < windowAngle)
@@ -53,6 +54,9 @@ public class Blade : MonoBehaviour {
             yield return new WaitForFixedUpdate();
             currentTime += Time.fixedDeltaTime;
         }
+
+        ///raw solution to wait animation
+        yield return new WaitForSeconds(0.3f);
 
         ObjectPool.Pool.Destroy(this.gameObject);
 	}

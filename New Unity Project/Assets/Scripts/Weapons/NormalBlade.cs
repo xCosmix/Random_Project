@@ -43,7 +43,7 @@ public class NormalBlade : Weapon
 
     public override void Shoot()
     {
-        GameObject instance = Pool.New(slash, (Vector2)owner.transform.position + owner.AimDir, Quaternion.LookRotation(Vector3.forward, owner.AimDir), 20);
+        GameObject instance = Pool.New(slash, (Vector2)owner.transform.position + owner.AimDir * 0.3f, Quaternion.LookRotation(Vector3.forward, owner.AimDir), 20);
         Blade bladeInstance = instance.GetComponent<Blade>();
         bladeInstance.New(direction, this);
     }
