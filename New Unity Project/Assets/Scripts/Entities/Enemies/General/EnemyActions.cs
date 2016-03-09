@@ -38,7 +38,7 @@ namespace EnemyActions
         }
 
         public override bool Fail() { return path.Length <= 1; }
-        public override bool Goal() { return currentPoint >= path.Length-1; }
+        public override bool Goal() { return currentPoint >= path.Length; }
 
         public override void Update()
         {
@@ -50,12 +50,13 @@ namespace EnemyActions
             if ((currentGoal - myPosition).magnitude < goalDistance)
             {
                 currentPoint++;
-                currentPoint = Mathf.Clamp(currentPoint, 0, path.Length - 1);
+                if (currentPoint >= path.Length) return;
+
                 currentGoal = path[currentPoint];
             }
 
             Vector2 moveDir = currentGoal - (Vector2)me.transform.position;
-            me.RigidBody.AddForce(moveDir * me.characterController.speed);
+            me.RigidBody.AddForce(moveDir.normalized * me.characterController.speed);
         }
     }
 
@@ -144,5 +145,79 @@ namespace EnemyActions
         public override bool Goal() { return true; }
 
         public override void Update() { }
+    }
+
+    [ActionProperties("Aproach", "Movement", 1, false)]
+    class Aproach : Action
+    {
+        public Aproach(float minRadius, float maxRadius, float minAngle, float maxAngle)
+        {
+            this.target = Player.player.transform.position;
+            this.minRadius = minRadius;
+            this.maxRadius = maxRadius;
+            this.minAngle = minAngle;
+            this.maxAngle = maxAngle;
+        }
+
+        float minRadius;
+        float maxRadius;
+        float minAngle;
+        float maxAngle;
+        Vector2 target;
+
+        Entity me;
+        Vector2[] path;
+        Vector2 currentGoal;
+        int currentPoint = 0;
+        float goalDistance = 0.0f;
+
+        public override void End() { me.Animator.SetBool("run", false); }
+        public override void Suspended() { }
+        public override void Queued() { }
+        public override void Start()
+        {
+            me = components.action_target.GetComponent<Entity>();
+
+            Vector2 goal = Target();
+            path = Path.FindPath(me.transform.position, goal);
+
+            currentPoint = 0;
+            goalDistance = Grid.GetNodeSize() * 0.5f;
+
+            currentGoal = path[currentPoint];
+        }
+
+        public override bool Fail() { return path.Length <= 1; }
+        public override bool Goal() { return currentPoint >= path.Length; }
+
+        public override void Update()
+        {
+            ///GENERIC ANIMATION 
+            me.Animator.SetBool("run", true);
+
+            ///move
+            Vector2 myPosition = me.transform.position;
+            if ((currentGoal - myPosition).magnitude < goalDistance)
+            {
+                currentPoint++;
+                if (currentPoint >= path.Length) return;
+
+                currentGoal = path[currentPoint];
+            }
+
+            Vector2 moveDir = currentGoal - (Vector2)me.transform.position;
+            me.RigidBody.AddForce(moveDir.normalized * me.characterController.speed);
+        }
+
+        private Vector2 Target ()
+        {
+            Vector2 myPosition = me.transform.position;
+            Vector2 dir = myPosition - target;
+            float radius = Random.Range(minRadius, maxRadius);
+            float angle = Random.Range(minAngle, maxAngle);
+            Vector2 finalDir = Quaternion.AngleAxis(angle, Vector3.forward) * dir.normalized;
+
+            return target + finalDir * radius;
+        }
     }
 }

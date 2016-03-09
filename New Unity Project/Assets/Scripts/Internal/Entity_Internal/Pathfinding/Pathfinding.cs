@@ -4,12 +4,30 @@ namespace Pathfinding
 {
     public static class Path
     {
+        private const int layerMask = 128;
+
         public static Vector2[] FindPath(Vector3 from, Vector3 target)
+        {
+            Node startNode = Grid.GetClosestNode(from);
+            Node targetNode = Grid.GetClosestNode(target);
+
+            if (Physics2D.Linecast(startNode.position, targetNode.position))
+            {
+                return AStarPath(startNode, targetNode);
+            }
+            return StraightPath(startNode.position, targetNode.position);
+        }
+
+        private static Vector2[] StraightPath (Vector3 from, Vector3 target)
+        {
+            return new Vector2[] { from, target };
+        }
+        private static Vector2[] AStarPath (Node from, Node target)
         {
             #region Defintion
 
-            Node startNode = Grid.GetClosestNode(from);
-            Node targetNode = Grid.GetClosestNode(target);
+            Node startNode = from;
+            Node targetNode = target;
 
             Heap<Node> openSet = new Heap<Node>(Grid.GetMaxSize());
             Node currentNode;
@@ -95,7 +113,6 @@ namespace Pathfinding
 
             #endregion
         }
-
         private static Vector2[] RetracePath(Node startNode, Node endNode)
         {
             List<Node> path = new List<Node>();
