@@ -133,7 +133,7 @@ public partial class Player : Entity
             if (player.playerInput.verticalAxis != 0.0f || player.playerInput.horizontalAxis != 0.0f)
             {
                 Vector2 walk_dir = new Vector2(player.playerInput.horizontalAxis, player.playerInput.verticalAxis);
-                player.rigidBody.AddForce(walk_dir * player.characterController.speed);
+                player.rigidBody.AddForce(walk_dir * player.characterController.Speed);
                 player.animator.SetBool("run", true);
             }
         }

@@ -56,7 +56,7 @@ namespace EnemyActions
             }
 
             Vector2 moveDir = currentGoal - (Vector2)me.transform.position;
-            me.RigidBody.AddForce(moveDir.normalized * me.characterController.speed);
+            me.RigidBody.AddForce(moveDir.normalized * me.characterController.Speed);
         }
     }
 
@@ -206,7 +206,7 @@ namespace EnemyActions
             }
 
             Vector2 moveDir = currentGoal - (Vector2)me.transform.position;
-            me.RigidBody.AddForce(moveDir.normalized * me.characterController.speed);
+            me.RigidBody.AddForce(moveDir.normalized * me.characterController.Speed);
         }
 
         private Vector2 Target ()
@@ -273,7 +273,9 @@ namespace EnemyActions
             }
 
             Vector2 moveDir = currentGoal - (Vector2)me.transform.position;
-            me.RigidBody.AddForce(moveDir.normalized * me.characterController.speed);
+            me.AimDir = moveDir.normalized;
+
+            me.RigidBody.AddForce(moveDir.normalized * me.characterController.Speed);
         }
         private bool NeedToRepath ()
         {

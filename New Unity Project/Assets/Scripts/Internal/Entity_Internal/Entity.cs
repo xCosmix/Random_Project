@@ -205,6 +205,10 @@ public abstract class Entity : MonoBehaviour {
         public float speed;
         public float weight;
         public ForceProps[] forces;
+        public float Speed
+        {
+            get { return speed * Time.deltaTime * 100.0f; }
+        }
     }
 
 #endregion

@@ -4,14 +4,14 @@ namespace Pathfinding
 {
     public static class Path
     {
-        private const int layerMask = 128;
+        private const int layerMask = 256;
 
         public static Vector2[] FindPath(Vector3 from, Vector3 target)
         {
             Node startNode = Grid.GetClosestNode(from);
             Node targetNode = Grid.GetClosestNode(target);
 
-            if (Physics2D.Linecast(startNode.position, targetNode.position))
+            if (Physics2D.Linecast(startNode.position, targetNode.position, layerMask))
             {
                 return AStarPath(startNode, targetNode);
             }

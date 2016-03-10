@@ -55,7 +55,7 @@ public abstract class Weapon : IWeapon
 
         this.direction = direction.normalized;
 
-        if (currentOverCharge > OverChargeValue) {
+        if (currentOverCharge > OverChargeValue && OverChargeValue != 0.0f) {
             OverCharge();
             currentOverCharge = 0.0f;
         }

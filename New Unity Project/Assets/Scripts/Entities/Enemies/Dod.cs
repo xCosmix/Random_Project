@@ -13,8 +13,7 @@ public class Dod : Enemy {
 
     protected override void EnemyStart()
     {
-
-        weapon = new NormalBlade(this);
+        weapon = new ContactHazard(this, 2.0f, 0.2f);
 
         Node root = new MemProbabilistic
         (
@@ -51,5 +50,10 @@ public class Dod : Enemy {
         );
 
         behaviourTree = new BehaviourTree.Tree(root);
+    }
+
+    protected override void EnemyUpdate()
+    {
+        weapon.Trigger(Vector2.zero);
     }
 }

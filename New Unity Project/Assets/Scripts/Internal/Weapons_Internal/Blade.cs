@@ -30,15 +30,13 @@ public class Blade : MonoBehaviour {
         while (currentTime < duration)
         {
             interpolation = currentTime / duration;
-            Collider2D[] colls = Physics2D.OverlapCircleAll(ownerT.position, radius);
+            Collider2D[] colls = Physics2D.OverlapCircleAll(ownerT.position, radius, 512);
 
             Vector2 currentBladeDirection = Quaternion.AngleAxis(angle / 2.0f - (angle * interpolation), Vector3.forward) * dir;
 
             foreach (Collider2D coll in colls)
             {
                 Entity ent = coll.GetComponent<Entity>();
-
-                if (ent == null) continue;
                 if (coll.gameObject == owner.owner) continue;
 
                 Vector2 position = coll.gameObject.transform.position;
