@@ -220,4 +220,76 @@ namespace EnemyActions
             return target + finalDir * radius;
         }
     }
+
+    [ActionProperties("Follow", "Movement", 1, false)]
+    class Follow : Action
+    {
+        public Follow(float maxTime)
+        {
+            this.maxTime = maxTime;
+        }
+
+        float maxTime;
+
+        Entity me;
+        Vector2[] path;
+        Vector2 currentGoal;
+        int currentPoint = 0;
+        float goalDistance = 0.0f;
+
+        float startTime = 0.0f;
+
+        public override void End() { me.Animator.SetBool("run", false); }
+        public override void Suspended() { }
+        public override void Queued() { }
+        public override void Start()
+        {
+            me = components.action_target.GetComponent<Entity>();
+            startTime = Time.time;
+
+            UpdateFollow();
+        }
+
+        public override bool Fail() { return path.Length <= 1 || Time.time - startTime > maxTime; }
+        public override bool Goal() { return currentPoint >= path.Length; }
+
+        public override void Update()
+        {
+            ///GENERIC ANIMATION 
+            me.Animator.SetBool("run", true);
+
+            ///evaluate if have to repath
+            if (NeedToRepath())
+                UpdateFollow();
+
+            ///move
+            Vector2 myPosition = me.transform.position;
+            if ((currentGoal - myPosition).magnitude < goalDistance)
+            {
+                currentPoint++;
+                if (currentPoint >= path.Length) return;
+
+                currentGoal = path[currentPoint];
+            }
+
+            Vector2 moveDir = currentGoal - (Vector2)me.transform.position;
+            me.RigidBody.AddForce(moveDir.normalized * me.characterController.speed);
+        }
+        private bool NeedToRepath ()
+        {
+            Vector2 playerPos = Player.player.transform.position;
+
+            return (playerPos - path[path.Length - 1]).sqrMagnitude > 6.0f;
+        }
+        private void UpdateFollow ()
+        {
+            Vector2 goal = Player.player.transform.position;
+            path = Path.FindPath(me.transform.position, goal);
+
+            currentPoint = 0;
+            goalDistance = Grid.GetNodeSize() * 0.5f;
+
+            currentGoal = path[currentPoint];
+        }
+    }
 }
