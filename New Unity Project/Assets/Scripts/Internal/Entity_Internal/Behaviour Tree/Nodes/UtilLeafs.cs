@@ -29,6 +29,31 @@ namespace BehaviourTree
         }
     }
 
+    public class Probability : Leaf
+    {
+        private int percent = 0;
+        private float percistence = 1.0f;
+
+        public Probability(int percent, float percistence) { this.percent = percent; this.percistence = percistence; }
+
+        public override State Tick(Tick tick)
+        {
+            float startTime = tick.blackBoard.Get<float>("changeTime", tick.tree, this);
+            int value = tick.blackBoard.Get<int>("lastValue", tick.tree, this);
+
+            if (Time.time - startTime > percistence)
+            {
+                value = Random.Range(0, 101);
+                tick.blackBoard.Set("lastValue", value, tick.tree, this);
+                tick.blackBoard.Set("changeTime", Time.time, tick.tree, this);
+            }
+
+            if (value <= percent) return State.Success;
+
+            return State.Failure;
+        }
+    }
+
     public class WaitRandom : Leaf
     {
         private float min = 0.0f;

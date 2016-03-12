@@ -25,6 +25,7 @@ public class Blastbark : Enemy {
                 (
                         new Node[]
                         {
+                            new TargetOnSight(fieldOfView),
                             new WillShoot(5.0f, 10.0f, 30),
                             new MemSequence
                             (

@@ -56,7 +56,7 @@ public partial class Player : Entity {
 
         Action.Create<Cannon>(this.gameObject);
         Action.Create<Idle>(this.gameObject);
-        Action.Create<Move>(this.gameObject);
+        Action.Create<Run>(this.gameObject);
     }
     // Update is called once per frame
     protected override void CustomUpdate() {  }
@@ -117,8 +117,8 @@ public partial class Player : Entity
         }
     }
 
-    [ActionProperties("Move", "Movement", 1, false)]
-    class Move : Action
+    [ActionProperties("Run", "Movement", 1, false)]
+    class Run : Action
     {
         public override void End() { }
         public override void Suspended() { }
@@ -133,7 +133,7 @@ public partial class Player : Entity
             if (player.playerInput.verticalAxis != 0.0f || player.playerInput.horizontalAxis != 0.0f)
             {
                 Vector2 walk_dir = new Vector2(player.playerInput.horizontalAxis, player.playerInput.verticalAxis);
-                player.rigidBody.AddForce(walk_dir * player.characterController.Speed);
+                player.Move(walk_dir);
                 player.animator.SetBool("run", true);
             }
         }

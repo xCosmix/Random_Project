@@ -32,4 +32,41 @@ namespace EnemyNodes
             return State.Failure;
         }
     }
+
+    public class TargetOnSight : Leaf
+    {
+        private const float lookForPlayerTime = 5.0f;
+
+        private float fieldOfView;
+
+        public TargetOnSight(float fieldOfView)
+        {
+            this.fieldOfView = fieldOfView;
+        }
+        public override State Tick(Tick tick)
+        {
+            float lastSeenTime = tick.blackBoard.Get<float>("lastSeenTime", tick.tree, this);
+            float time = Time.time - lastSeenTime;
+
+            Player p = Player.player;
+            Vector2 pPosition = p.transform.position;
+            Vector2 myPosition = tick.blackBoard.agent.transform.position;
+
+            Vector2 delta = pPosition - myPosition;
+            bool lookingFor = time < lookForPlayerTime;
+
+            if (delta.sqrMagnitude <= fieldOfView || lookingFor)
+            {
+                if (!Physics2D.Linecast(myPosition, pPosition, 256) || lookingFor)
+                {
+                    if (!lookingFor)
+                        tick.blackBoard.Set("lastSeenTime", Time.time, tick.tree, this);
+
+                    return State.Success;
+                }
+            }
+
+            return State.Failure;
+        }
+    }
 }

@@ -23,7 +23,11 @@ public class Dod : Enemy {
                 (
                     new Node[]
                     {
-                        new XAction<Follow>(12.0f),
+                        new TimeLimit
+                        (
+                            10.0f,
+                            new XAction<Follow>()
+                        )
                     }
                 ),
                 new MemProbabilistic

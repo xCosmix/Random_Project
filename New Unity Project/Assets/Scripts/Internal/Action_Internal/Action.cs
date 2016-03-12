@@ -62,7 +62,7 @@ public sealed class ActionInstance : System.Object
 
     public State state;
     public float time;
-    private float start_time;
+    //private float start_time;
 
     public ActionInstance(Action action)
     {
@@ -76,7 +76,7 @@ public sealed class ActionInstance : System.Object
     public bool Subscribe()
     {
         state = State.Queued;
-        start_time = Time.time;
+        //start_time = Time.time;
         time = 0.0f;
 
         return action.components.action_controller.Subscribe(action);

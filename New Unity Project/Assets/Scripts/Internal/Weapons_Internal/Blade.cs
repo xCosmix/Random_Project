@@ -13,8 +13,13 @@ public class Blade : MonoBehaviour {
     protected Vector2 dir;
     private Weapon owner;
 
+    private string side = "Bullet";
+
     public void New(Vector2 dir, Weapon owner)
     {
+        side = owner.owner.GetType().BaseType == typeof(Enemy) ? "EnemyBullet" : "PlayerBullet";
+        gameObject.layer = LayerMask.NameToLayer(side);
+
         this.dir = dir;
         this.owner = owner;
 
@@ -30,7 +35,8 @@ public class Blade : MonoBehaviour {
         while (currentTime < duration)
         {
             interpolation = currentTime / duration;
-            Collider2D[] colls = Physics2D.OverlapCircleAll(ownerT.position, radius, 512);
+            int layermask = side == "EnemyBullet" ? 512 : 16384;
+            Collider2D[] colls = Physics2D.OverlapCircleAll(ownerT.position, radius, layermask);
 
             Vector2 currentBladeDirection = Quaternion.AngleAxis(angle / 2.0f - (angle * interpolation), Vector3.forward) * dir;
 

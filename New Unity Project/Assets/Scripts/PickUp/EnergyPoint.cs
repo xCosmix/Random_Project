@@ -4,9 +4,10 @@ using System.Collections;
 
 public class EnergyPoint : MonoBehaviour {
 
-    [Range(25, 105)]
-    public int value = 25;
+    public const int minValue = 5;
+    public const int maxValue = 20;
 
+    private int value = 25;
     protected float minSize = 2.0f;
     protected float maxSize = 5.0f;
     protected Player player;
@@ -14,6 +15,8 @@ public class EnergyPoint : MonoBehaviour {
 
     public void New(int value)
     {
+        value = Mathf.Abs(value);
+
         player = Player.player;
         this.value = value;
         float sizeInterpolation = (float)value / 105.0f;
@@ -22,7 +25,7 @@ public class EnergyPoint : MonoBehaviour {
 
         float randomAngle = Random.Range(0.0f, 360.0f);
         Vector2 dir = Quaternion.AngleAxis(randomAngle, Vector3.forward) * Vector2.up;
-        float randomForce = Random.Range(1.0f, 10.0f);
+        float randomForce = Random.Range(10.0f, 20.0f);
 
         if (rigidBody == null) rigidBody = GetComponent<Rigidbody2D>();
 

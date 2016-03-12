@@ -24,8 +24,13 @@ public class Bladebuzz : Enemy {
                 (
                     new Node[]
                     {
+                        new TargetOnSight(fieldOfView),
                         new WillShoot(3.0f, 8.0f, 30),
-                        new XAction<Aproach>(0.5f, 1.5f, -10.0f, 10.0f),
+                        new TimeLimit 
+                        (
+                            3.0f,
+                            new XAction<Aproach>(0.5f, 1.5f, -10.0f, 10.0f)
+                        ),
                         new MemSequence
                         (
                             new Node[]

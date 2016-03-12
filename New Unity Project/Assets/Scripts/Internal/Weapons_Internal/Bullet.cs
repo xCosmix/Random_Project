@@ -13,8 +13,13 @@ public class Bullet : MonoBehaviour {
     private Vector2 dir;
     private Weapon owner;
 
+    private string side = "Bullet"; 
+
     public void New (Vector2 dir, Weapon owner)
     {
+        side = owner.owner.GetType().BaseType == typeof(Enemy) ? "EnemyBullet" : "PlayerBullet";
+        gameObject.layer = LayerMask.NameToLayer(side);
+
         this.dir = dir;
         this.owner = owner;
 

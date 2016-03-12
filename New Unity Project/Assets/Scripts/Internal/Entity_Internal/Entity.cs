@@ -35,6 +35,21 @@ public abstract class Entity : MonoBehaviour {
     public CCProperties characterController;
     public abstract Vector2 AimDir { get; set; }
 
+    public void Move (Vector2 direction)
+    {
+        float speed = characterController.speed;
+        rigidBody.AddForce(direction.normalized * speed * Time.deltaTime * 100.0f);
+    }
+    public void Move(Vector2 direction, float speed)
+    {
+        rigidBody.AddForce(direction.normalized * speed * Time.deltaTime * 100.0f);
+    }
+    public void Impulse(Vector2 direction, float speed)
+    {
+        rigidBody.AddForce(direction.normalized * speed, ForceMode2D.Impulse);
+    }
+
+
     #endregion
 
     #region Events
@@ -204,11 +219,6 @@ public abstract class Entity : MonoBehaviour {
     {
         public float speed;
         public float weight;
-        public ForceProps[] forces;
-        public float Speed
-        {
-            get { return speed * Time.deltaTime * 100.0f; }
-        }
     }
 
 #endregion
